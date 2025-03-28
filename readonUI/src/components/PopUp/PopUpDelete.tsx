@@ -11,7 +11,6 @@ const PopUpDelete = ({id, object, handleOut, handleConfirm}:LoanDetailProps) => 
 
     const handleDelete = async () =>{
         
-        handleOut();
         if (object == "book")
         try{
             const response = await axiosInstance.delete(`https://localhost:7182/api/Book/delete-book?id=${id}`)
@@ -24,6 +23,22 @@ const PopUpDelete = ({id, object, handleOut, handleConfirm}:LoanDetailProps) => 
         } catch (error){
             console.error("Error: ", error);
         }
+
+        if (object == "user")
+        try{
+            const response = await axiosInstance.delete(`https://localhost:7182/api/Account/delete-user?id=${id}`)
+            if (response.status = 200){
+                handleConfirm();
+                console.log("Successfully");
+            } else {
+                console.log("Error: " + response.status);
+            }
+        } catch (error){
+            console.error("Error: ", error);
+        }
+
+
+        handleOut();
     }
 
     return (
