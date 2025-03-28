@@ -70,7 +70,7 @@ const Admin_Users = () =>{
 
             <div className="pl-[222px] pt-[71px]">
             <div className="flex justify-between pt-[28px] px-[20px]">
-                    <p></p>
+                    <p className="text-[28px] font-[500] ml-[12px]">User Management</p>
                     <div className="flex items-center ">
                         <button
                             onClick={()=> setAddPopUp(true)} 

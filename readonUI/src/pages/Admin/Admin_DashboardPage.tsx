@@ -2,13 +2,28 @@ import TaskBar from "../../components/TaskBar";
 import PieChartComponent from "../../components/PieChartComponent";
 import {useEffect, useState} from "react";
 import axiosInstance from "../../utils/axiosInstance";
+import PopUpView from "../../components/PopUp/PopUpView";
+import LoanDetail from "../../components/DetailView/LoanDetail";
 
+type List = {
+    id: string;
+    userId: string;
+    amount: string;
+    dueDate: string;
+    time: string;
+};
 
 type Type = {
     fullname: string;
     id: string;
     status: string;
 };
+
+type ChoiceType = {
+    id: string;
+    amount : string;
+    date: string;
+}
 
 const formatGuid = (guid: string) => {
     return `${guid.substring(0, 8)}...`;
@@ -23,6 +38,12 @@ const Admin_DashboardPage = () => {
     const [listAdmin, setListAdmin] = useState<Type[]>([]);
     const [listOverdue, setListOverdue] = useState<Type[]>([]);
     const [listBranch, setListBranch] = useState<Type[]>([]);
+    const [list, setList] = useState<List[]>([]);
+
+    const [id, setId] = useState("");
+    const [choice, setChoice] = useState<ChoiceType>({ id: "", amount: "", date: "" });
+    const [type, setType] = useState<"admin"| "branch">("admin")
+    const [viewPopUp, setViewPopUp] = useState(false);
 
     const data = [
         { name:"Total Borrowed Books", value: totalBorrowed||0},
@@ -86,7 +107,7 @@ const Admin_DashboardPage = () => {
     const getListAdmin = async () => {
         try {
             const response = await axiosInstance.get("https://localhost:7182/api/Account/dashboard-admins");
-            if (response.status = 200){
+            if (response.status == 200){
                 setListAdmin(response.data);
             } else {
                 console.log("Error: " + response.status);
@@ -99,7 +120,7 @@ const Admin_DashboardPage = () => {
     const getListOverdue = async () => {
         try {
             const response = await axiosInstance.get("https://localhost:7182/api/Loan/dashboard-overdueborrowers");
-            if (response.status = 200){
+            if (response.status == 200){
                 setListOverdue(response.data);
             } else {
                 console.log("Error: " + response.status);
@@ -112,7 +133,7 @@ const Admin_DashboardPage = () => {
     const getListBranch = async () => {
         try {
             const response = await axiosInstance.get("https://localhost:7182/api/Branch/dashboard-branches");
-            if (response.status = 200){
+            if (response.status == 200){
                 setListBranch(response.data);
             } else {
                 console.log("Error: " + response.status);
@@ -134,11 +155,37 @@ const Admin_DashboardPage = () => {
             getListBranch();
     }, []);
     
+    const handleClick = async (n: string = "", type: ("admin"| "branch")) =>{
+        console.log(id, type, viewPopUp)
+        setId(n); 
+        setType(type);
+        setViewPopUp(true);
+    }
+    
+    const handleOverDue = async (n: string ="") =>{
+        try {
+            const response = await axiosInstance.get(`https://localhost:7182/api/Loan/overdueborrowers?`);
+            if (response.status == 200){
+                setList(response.data);
+            } else {
+                console.log("Error: " + response.status);
+            }
+        } catch (error){
+            console.error("Error fetching listAdmin: ", error);
+        }
 
+        const selectedItem = list.find((item) => item.id === n);
+
+        if (selectedItem) {
+            setChoice({ id: selectedItem.id, amount: selectedItem.amount, date: selectedItem.dueDate });
+        }
+    }
 
     return (
         <div className="bg-[#F2F2F2] h-screen w-screen select-none">
             <TaskBar></TaskBar>
+            {viewPopUp && <PopUpView object= {type} handleOut={()=>setViewPopUp(false)} id={id}></PopUpView>}
+            {choice['id'] && <LoanDetail handleOut={()=>setChoice({ id: "", amount: "", date: "" })} id={choice['id']} amount={choice['amount']} date={choice['date']}></LoanDetail>}
             <div className="pl-[222px] pt-[71px]"> 
                 <div className="flex">
                     <PieChartComponent data = {data}></PieChartComponent>
@@ -223,7 +270,7 @@ const Admin_DashboardPage = () => {
                                         </div>
 
                                         <button className="mr-[10px]">
-                                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <svg onClick={() => handleClick(admin.id, "admin")} width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M21.6914 2.71C21.6114 2.53 21.4714 2.38 21.2814 2.3C21.1914 2.27 21.1014 2.25 21.0014 2.25H17.0014C16.5914 2.25 16.2514 2.59 16.2514 3C16.2514 3.41 16.5914 3.75 17.0014 3.75H19.1914L14.4714 8.47C14.1814 8.76 14.1814 9.24 14.4714 9.53C14.6214 9.68 14.8114 9.75 15.0014 9.75C15.1914 9.75 15.3814 9.68 15.5314 9.53L20.2514 4.81V7C20.2514 7.41 20.5914 7.75 21.0014 7.75C21.4114 7.75 21.7514 7.41 21.7514 7V3C21.7514 2.9 21.7314 2.81 21.6914 2.71Z" fill="black"/>
                                                 <path d="M8.47 14.4714L3.75 19.1914V17.0014C3.75 16.5914 3.41 16.2514 3 16.2514C2.59 16.2514 2.25 16.5914 2.25 17.0014V21.0014C2.25 21.1014 2.27 21.1914 2.31 21.2914C2.39 21.4714 2.53 21.6214 2.72 21.7014C2.8 21.7314 2.9 21.7514 3 21.7514H7C7.41 21.7514 7.75 21.4114 7.75 21.0014C7.75 20.5914 7.41 20.2514 7 20.2514H4.81L9.53 15.5314C9.82 15.2414 9.82 14.7614 9.53 14.4714C9.24 14.1814 8.76 14.1814 8.47 14.4714Z" fill="black"/>
                                                 <path d="M2.2 14.75C1.85 14.75 1.54 14.5 1.47 14.15C1.33 13.45 1.25 12.72 1.25 12C1.25 6.07 6.07 1.25 12 1.25C12.73 1.25 13.46 1.32 14.17 1.47C14.58 1.55 14.84 1.95 14.76 2.35C14.68 2.76 14.27 3.01 13.88 2.94C13.25 2.81 12.63 2.75 12 2.75C6.9 2.75 2.75 6.9 2.75 12C2.75 12.62 2.81 13.25 2.94 13.85C3.02 14.26 2.76 14.65 2.35 14.73C2.3 14.75 2.25 14.75 2.2 14.75Z" fill="black"/>
@@ -265,7 +312,7 @@ const Admin_DashboardPage = () => {
                                         </div>
 
                                         <button className="mr-[10px]">
-                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <svg onClick={()=>handleOverDue(overdue.id)} width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M21.6914 2.71C21.6114 2.53 21.4714 2.38 21.2814 2.3C21.1914 2.27 21.1014 2.25 21.0014 2.25H17.0014C16.5914 2.25 16.2514 2.59 16.2514 3C16.2514 3.41 16.5914 3.75 17.0014 3.75H19.1914L14.4714 8.47C14.1814 8.76 14.1814 9.24 14.4714 9.53C14.6214 9.68 14.8114 9.75 15.0014 9.75C15.1914 9.75 15.3814 9.68 15.5314 9.53L20.2514 4.81V7C20.2514 7.41 20.5914 7.75 21.0014 7.75C21.4114 7.75 21.7514 7.41 21.7514 7V3C21.7514 2.9 21.7314 2.81 21.6914 2.71Z" fill="black"/>
                                                 <path d="M8.47 14.4714L3.75 19.1914V17.0014C3.75 16.5914 3.41 16.2514 3 16.2514C2.59 16.2514 2.25 16.5914 2.25 17.0014V21.0014C2.25 21.1014 2.27 21.1914 2.31 21.2914C2.39 21.4714 2.53 21.6214 2.72 21.7014C2.8 21.7314 2.9 21.7514 3 21.7514H7C7.41 21.7514 7.75 21.4114 7.75 21.0014C7.75 20.5914 7.41 20.2514 7 20.2514H4.81L9.53 15.5314C9.82 15.2414 9.82 14.7614 9.53 14.4714C9.24 14.1814 8.76 14.1814 8.47 14.4714Z" fill="black"/>
                                                 <path d="M2.2 14.75C1.85 14.75 1.54 14.5 1.47 14.15C1.33 13.45 1.25 12.72 1.25 12C1.25 6.07 6.07 1.25 12 1.25C12.73 1.25 13.46 1.32 14.17 1.47C14.58 1.55 14.84 1.95 14.76 2.35C14.68 2.76 14.27 3.01 13.88 2.94C13.25 2.81 12.63 2.75 12 2.75C6.9 2.75 2.75 6.9 2.75 12C2.75 12.62 2.81 13.25 2.94 13.85C3.02 14.26 2.76 14.65 2.35 14.73C2.3 14.75 2.25 14.75 2.2 14.75Z" fill="black"/>
@@ -306,7 +353,7 @@ const Admin_DashboardPage = () => {
                                         </div>
 
                                         <button className="mr-[10px]">
-                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <svg onClick={() => handleClick(branch.id, "branch")} width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M21.6914 2.71C21.6114 2.53 21.4714 2.38 21.2814 2.3C21.1914 2.27 21.1014 2.25 21.0014 2.25H17.0014C16.5914 2.25 16.2514 2.59 16.2514 3C16.2514 3.41 16.5914 3.75 17.0014 3.75H19.1914L14.4714 8.47C14.1814 8.76 14.1814 9.24 14.4714 9.53C14.6214 9.68 14.8114 9.75 15.0014 9.75C15.1914 9.75 15.3814 9.68 15.5314 9.53L20.2514 4.81V7C20.2514 7.41 20.5914 7.75 21.0014 7.75C21.4114 7.75 21.7514 7.41 21.7514 7V3C21.7514 2.9 21.7314 2.81 21.6914 2.71Z" fill="black"/>
                                                 <path d="M8.47 14.4714L3.75 19.1914V17.0014C3.75 16.5914 3.41 16.2514 3 16.2514C2.59 16.2514 2.25 16.5914 2.25 17.0014V21.0014C2.25 21.1014 2.27 21.1914 2.31 21.2914C2.39 21.4714 2.53 21.6214 2.72 21.7014C2.8 21.7314 2.9 21.7514 3 21.7514H7C7.41 21.7514 7.75 21.4114 7.75 21.0014C7.75 20.5914 7.41 20.2514 7 20.2514H4.81L9.53 15.5314C9.82 15.2414 9.82 14.7614 9.53 14.4714C9.24 14.1814 8.76 14.1814 8.47 14.4714Z" fill="black"/>
                                                 <path d="M2.2 14.75C1.85 14.75 1.54 14.5 1.47 14.15C1.33 13.45 1.25 12.72 1.25 12C1.25 6.07 6.07 1.25 12 1.25C12.73 1.25 13.46 1.32 14.17 1.47C14.58 1.55 14.84 1.95 14.76 2.35C14.68 2.76 14.27 3.01 13.88 2.94C13.25 2.81 12.63 2.75 12 2.75C6.9 2.75 2.75 6.9 2.75 12C2.75 12.62 2.81 13.25 2.94 13.85C3.02 14.26 2.76 14.65 2.35 14.73C2.3 14.75 2.25 14.75 2.2 14.75Z" fill="black"/>

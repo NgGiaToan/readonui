@@ -20,11 +20,14 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/signin" element ={<SignInPage></SignInPage>}></Route>
-        <Route path="/signup" element ={<SignUpPage></SignUpPage>}></Route>
-        <Route path="/forgot_password" element ={<ForgotPasswordPage></ForgotPasswordPage>}></Route>
-        <Route path="/check_otp" element={<CheckOtpPage></CheckOtpPage>}></Route>
-        <Route path="/reset_password" element={<ResetPasswordPage></ResetPasswordPage>}></Route>
+        <Route element={<ProtectedRoute></ProtectedRoute>}>
+          <Route path="/signin" element ={<SignInPage></SignInPage>}></Route>
+          <Route path="/signup" element ={<SignUpPage></SignUpPage>}></Route>
+          <Route path="/forgot_password" element ={<ForgotPasswordPage></ForgotPasswordPage>}></Route>
+          <Route path="/check_otp" element={<CheckOtpPage></CheckOtpPage>}></Route>
+          <Route path="/reset_password" element={<ResetPasswordPage></ResetPasswordPage>}></Route>
+        </Route>
+
         
         <Route element={<ProtectedRoute allowRoles={["Admin"]}></ProtectedRoute>}>
           <Route path="/admin_dashboard" element={<Admin_DashboardPage></Admin_DashboardPage>}></Route>
@@ -32,6 +35,13 @@ function App() {
           <Route path="/admin_books" element={<Admin_Books></Admin_Books>}></Route>
           <Route path="/admin_users" element={<Admin_Users></Admin_Users>}></Route>
           <Route path="/admin_branches" element={<Admin_Branches></Admin_Branches>}></Route>
+        </Route>
+
+
+        <Route element={<ProtectedRoute allowRoles={["User"]}></ProtectedRoute>}>
+          <Route path="/user_dashboard" element={<Admin_DashboardPage></Admin_DashboardPage>}></Route>
+          <Route path="/user_catalog" element={<Admin_DashboardPage></Admin_DashboardPage>}></Route>
+          <Route path="/user_books" element={<Admin_DashboardPage></Admin_DashboardPage>}></Route>
         </Route>
       </Routes>
     </AuthProvider>

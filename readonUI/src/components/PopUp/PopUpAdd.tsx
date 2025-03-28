@@ -18,6 +18,9 @@ const PopUpAdd = ({object, handleOut, handleConfirm}:LoanDetailProps) => {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
 
+    const [contact, setContact] = useState("");
+    const [location, setLocation] = useState("");
+
     const handleAdd =  async (e: React.FormEvent) => {
         e.preventDefault();
         const id = localStorage.getItem("id");
@@ -86,7 +89,36 @@ const PopUpAdd = ({object, handleOut, handleConfirm}:LoanDetailProps) => {
             }
         }
         
-        
+        if ( object == "branch"){
+            try {
+                const response = await axiosInstance.post(`https://localhost:7182/api/Branch/create-branch?id=${id}`,
+                    {
+                        name,
+                        contactNo: contact,
+                        location
+                    },
+                    {
+                        headers: {
+                            "Accept": "*/*",
+                            "Content-Type": "application/json"
+                        },
+                    });
+                    
+                    console.log(response.status);
+
+                if (response.status = 201){
+                    setErr("Add Branch Successfully!")
+                    setTimeout(handleOut,500);
+                    handleConfirm();
+                } else {
+                    setErr(response.data.message)
+                    console.log("Error: " + response.status);
+                }
+            } catch (error){
+                setErr((error as any)?.response?.data?.message|| "Data is Incorrect!")
+                console.error("Error fetching: ",error);
+            }
+        }
     }
     
 
@@ -260,6 +292,81 @@ const PopUpAdd = ({object, handleOut, handleConfirm}:LoanDetailProps) => {
 
                 }
 
+                {/* branch */}
+                {object=="branch" && 
+                    
+                    <div className="h-[491px] rounded-[16px] w-[627px] bg-white flex flex-col justify-center items-center">
+                        <div className="flex items-center">
+                            <div className="flex items-center w-[480px]">
+                                <div className="bg-[#D7D7D7] flex justify-center items-center w-[60px] h-[60px] rounded-[8px]">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10.6 4.15C10.6 4.34 10.44 4.5 10.25 4.5H9.12C6.96 4.5 5.2 6.26 5.2 8.42V17.65C5.2 17.84 5.04 18 4.85 18H4.15C2.96 18 2 17.04 2 15.85V4.15C2 2.96 2.96 2 4.15 2H8.45C9.64 2 10.6 2.96 10.6 4.15Z" fill="black"/>
+                                        <path d="M22.0004 4.15V15.85C22.0004 17.04 21.0404 18 19.8504 18H19.2204C19.0304 18 18.8704 17.84 18.8704 17.65V8.42C18.8704 6.26 17.1104 4.5 14.9504 4.5H13.7504C13.5604 4.5 13.4004 4.34 13.4004 4.15C13.4004 2.96 14.3604 2 15.5504 2H19.8504C21.0404 2 22.0004 2.96 22.0004 4.15Z" fill="black"/>
+                                        <path d="M14.9492 6H9.11922C7.77922 6 6.69922 7.08 6.69922 8.42V19.58C6.69922 20.92 7.77922 22 9.11922 22H10.7492C11.0292 22 11.2492 21.78 11.2492 21.5V19C11.2492 18.59 11.5892 18.25 11.9992 18.25C12.4092 18.25 12.7492 18.59 12.7492 19V21.5C12.7492 21.78 12.9692 22 13.2492 22H14.9592C16.2892 22 17.3692 20.92 17.3692 19.59V8.42C17.3692 7.08 16.2892 6 14.9492 6ZM13.9992 14.75H9.99922C9.58922 14.75 9.24922 14.41 9.24922 14C9.24922 13.59 9.58922 13.25 9.99922 13.25H13.9992C14.4092 13.25 14.7492 13.59 14.7492 14C14.7492 14.41 14.4092 14.75 13.9992 14.75ZM13.9992 11.75H9.99922C9.58922 11.75 9.24922 11.41 9.24922 11C9.24922 10.59 9.58922 10.25 9.99922 10.25H13.9992C14.4092 10.25 14.7492 10.59 14.7492 11C14.7492 11.41 14.4092 11.75 13.9992 11.75Z" fill="black"/>
+                                    </svg>
+
+                                </div>
+
+                                <p className="text-[20px] font-[500] ml-[12px]">Add Branch</p>
+
+                            </div>
+
+                            <svg onClick={handleOut} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9.16992 14.8299L14.8299 9.16992" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M14.8299 14.8299L9.16992 9.16992" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+
+                        </div>
+
+                        <div className="mt-[20px] h-[1px] w-[530px] bg-black"></div>
+                        
+                        <div className="mt-[32px] min-h-[290px] ml-[90px]">
+                            <form onSubmit={handleAdd}>
+                                <input
+                                    required
+                                    className="pl-[16px] w-[441px] h-[42px] border-1 border-[#3E3E3E] rounded-[12px]"
+                                    placeholder="Name" 
+                                    onChange={(e)=> setName(e.target.value)}
+                                ></input>
+
+                                <input
+                                    required
+                                    className="mt-[20px] pl-[16px] w-[441px] h-[42px] border-1 border-[#3E3E3E] rounded-[12px]"
+                                    placeholder="Contact No" 
+                                    onChange={(e)=> setContact(e.target.value)}
+                                ></input>
+
+                                <input
+                                    required
+                                    className="mt-[20px] pl-[16px] w-[441px] h-[42px] border-1 border-[#3E3E3E] rounded-[12px]"
+                                    placeholder="Location" 
+                                    onChange={(e)=> setLocation(e.target.value)}
+                                ></input>
+                            
+                                <div className="text-[red] top-[570px] w-[440px] left-[848px] text-right">
+                                    <p className={err=="Add Branch Successfully!" ? "text-[green]":""}>{err}</p>
+                                </div>
+                                <div className="ml-[-44px]">
+                                    <button 
+                                        className="h-[54px] w-[259px] rounded-[12px] bg-[#D7D7D7] font-[500] mt-[40px]"
+                                        onClick= {handleOut}
+                                        >
+                                        CANCEL
+                                    </button>
+
+                                    <button 
+                                        className="ml-[16px] bg-black h-[54px] w-[259px] rounded-[12px] text-white font-[500]"
+                                        type= "submit"
+                                        >
+                                        ADD
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>  
+
+                }
                 
             </div>
         </div>

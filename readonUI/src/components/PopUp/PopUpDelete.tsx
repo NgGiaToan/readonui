@@ -37,8 +37,22 @@ const PopUpDelete = ({id, object, handleOut, handleConfirm}:LoanDetailProps) => 
             console.error("Error: ", error);
         }
 
+        if (object == "branch")
+            try{
+                const response = await axiosInstance.delete(`https://localhost:7182/api/Branch/delete-branch?id=${id}`)
+                if (response.status = 200){
+                    handleConfirm();
+                    console.log("Successfully");
+                } else {
+                    console.log("Error: " + response.status);
+                }
+            } catch (error){
+                console.error("Error: ", error);
+            }
 
         handleOut();
+
+        
     }
 
     return (
