@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axiosInstance from "../utils/axiosInstance";
-import {useState} from "react";
+import {useState, useEffect} from "react";
+import axios from "axios";
 
 
 const Taskbar = ({ dashboard }: { dashboard: boolean }) => {
@@ -13,9 +14,19 @@ const Taskbar = ({ dashboard }: { dashboard: boolean }) => {
     const [err, setErr] = useState(""); 
     const navigate = useNavigate();
 
+    const [time, setTime] = useState(new Date());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+          setTime(new Date());
+        }, 1000); 
+    
+        return () => clearInterval(interval); 
+    }, []);
+
     const handleLogout = async () =>{
         try {
-            const result = await axiosInstance.post(`https://localhost:7182/api/Auth/logout?id=${id}`);
+            const result = await axios.post(`https://localhost:7182/api/Auth/logout?id=${id}`);
             
             if (result.status = 200) {
                 logout();
@@ -225,7 +236,7 @@ const Taskbar = ({ dashboard }: { dashboard: boolean }) => {
                 </div>
                 <div className="flex items-center text-right">
                     <div>
-                        <p className="text-[17px] font-[500]">{(new Date()).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}</p>
+                        <p className="text-[17px] font-[500]">{time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}</p>
                         <p className="text-[14px] font-[400]">{(new Date()).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })}</p>
                     </div>
                     <div className="ml-[12px] mr-[12px] h-[50px] w-[3px] bg-black"></div>

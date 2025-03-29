@@ -77,7 +77,7 @@ const LoanDetail = ({id, amount, date, handleOut}:LoanDetailProps) => {
                                         <p className="ml-[8px] text-[16px]">{amount} Books</p>
                                     </div>
                                     <div className="flex mt-[16px]">
-                                        <p className="text-[16px] font-[500]">Total Books:</p> 
+                                        <p className="text-[16px] font-[500]">Due Date:</p> 
                                         <p className="ml-[8px] text-[16px]">{(new Date(date)).toLocaleDateString("vi-VN")}</p>
                                     </div>
                             
