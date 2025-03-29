@@ -15,6 +15,10 @@ const Admin_Books = lazy(() => import("./pages/Admin/Admin_Books"));
 const Admin_Users = lazy(() => import("./pages/Admin/Admin_Users"));
 const Admin_Branches = lazy(() => import("./pages/Admin/Admin_Branches"));
 
+const User_DashboardPage = lazy(() => import("./pages/User/User_Dashboard"));
+const User_Catalog = lazy(() => import("./pages/User/User_Catalog"));
+const User_Books = lazy(() => import("./pages/User/User_Books"));
+
 function App() {
 
   return (
@@ -39,9 +43,9 @@ function App() {
 
 
         <Route element={<ProtectedRoute allowRoles={["User"]}></ProtectedRoute>}>
-          <Route path="/user_dashboard" element={<Admin_DashboardPage></Admin_DashboardPage>}></Route>
-          <Route path="/user_catalog" element={<Admin_DashboardPage></Admin_DashboardPage>}></Route>
-          <Route path="/user_books" element={<Admin_DashboardPage></Admin_DashboardPage>}></Route>
+          <Route path="/user_dashboard" element={<User_DashboardPage></User_DashboardPage>}></Route>
+          <Route path="/user_catalog" element={<User_Catalog></User_Catalog>}></Route>
+          <Route path="/user_books" element={<User_Books></User_Books>}></Route>
         </Route>
       </Routes>
     </AuthProvider>
